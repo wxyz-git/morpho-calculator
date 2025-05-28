@@ -42,26 +42,24 @@ export function CalculatorForm() {
     const maxLtv = watchedValues.maxLtv;
     const borrowAmount = watchedValues.borrowAmount;
 
-    // If borrow amount was changed, update LTV
-    if (borrowAmount !== (depositAmount * ltv) / 100) {
-      const newLtv = (borrowAmount / depositAmount) * 100;
-      if (newLtv <= maxLtv) {
-        form.setValue('ltv', newLtv);
-      }
-    }
-
     // Calculate health rate
     const healthRate = depositAmount / (borrowAmount / (maxLtv / 100));
-    form.setValue('healthRate', healthRate);
+    if (!isNaN(healthRate) && isFinite(healthRate)) {
+      form.setValue('healthRate', healthRate, { shouldValidate: true });
+    }
   }, [watchedValues.depositAmount, watchedValues.borrowAmount, watchedValues.maxLtv, form]);
 
-  // Update borrow amount when LTV changes
+  // Calculate borrow amount from LTV
   useEffect(() => {
     const depositAmount = watchedValues.depositAmount;
     const ltv = watchedValues.ltv;
     
-    const newBorrowAmount = (depositAmount * ltv) / 100;
-    form.setValue('borrowAmount', newBorrowAmount);
+    if (depositAmount && ltv) {
+      const newBorrowAmount = (depositAmount * ltv) / 100;
+      if (!isNaN(newBorrowAmount) && isFinite(newBorrowAmount)) {
+        form.setValue('borrowAmount', newBorrowAmount, { shouldValidate: true });
+      }
+    }
   }, [watchedValues.depositAmount, watchedValues.ltv, form]);
 
   const formatCurrency = (value: number) => {
