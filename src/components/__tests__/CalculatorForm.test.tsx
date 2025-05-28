@@ -10,19 +10,16 @@ describe('CalculatorForm', () => {
     expect(screen.getByLabelText(/Intrinsic APR/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Max LTV/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^LTV/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Health Rate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Health Rate/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Borrow Amount/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Borrow Rate/i)).toBeInTheDocument();
   });
 
-  it('shows calculated fields as disabled', () => {
+  it('shows health rate in results', () => {
     render(<CalculatorForm />);
     
-    const healthRateInput = screen.getByLabelText(/Health Rate/i) as HTMLInputElement;
-    const borrowAmountInput = screen.getByLabelText(/Borrow Amount/i) as HTMLInputElement;
-    
-    expect(healthRateInput.disabled).toBe(true);
-    expect(borrowAmountInput.disabled).toBe(true);
+    const healthRateSection = screen.getByText(/Health Rate/i).parentElement;
+    expect(healthRateSection).toHaveTextContent('2.03');
   });
 
   it('automatically updates calculated fields when inputs change', async () => {
@@ -53,11 +50,11 @@ describe('CalculatorForm', () => {
 
     await waitFor(() => {
       const results = screen.getByText(/Results/i).parentElement;
-      expect(results).toHaveTextContent('Annual Deposit Income: $425.00');
-      expect(results).toHaveTextContent('Annual Borrow Cost: $225.00');
-      expect(results).toHaveTextContent('Net Annual Benefit: $200.00');
-      expect(results).toHaveTextContent('Effective Capital Invested: $5,500.00');
-      expect(results).toHaveTextContent('Total Strategy APR: 3.64%');
+      expect(results).toHaveTextContent('$425.00'); // Annual Deposit Income
+      expect(results).toHaveTextContent('$225.00'); // Annual Borrow Cost
+      expect(results).toHaveTextContent('$200.00'); // Net Annual Benefit
+      expect(results).toHaveTextContent('$5,500.00'); // Effective Capital Invested
+      expect(results).toHaveTextContent('3.64%'); // Total Strategy APR
     });
   });
 
@@ -74,11 +71,26 @@ describe('CalculatorForm', () => {
 
     await waitFor(() => {
       const results = screen.getByText(/Results/i).parentElement;
-      expect(results).toHaveTextContent('Annual Deposit Income: $425.00');
-      expect(results).toHaveTextContent('Annual Borrow Cost: $0.00');
-      expect(results).toHaveTextContent('Net Annual Benefit: $425.00');
-      expect(results).toHaveTextContent('Effective Capital Invested: $10,000.00');
-      expect(results).toHaveTextContent('Total Strategy APR: 4.25%');
+      expect(results).toHaveTextContent('$425.00'); // Annual Deposit Income
+      expect(results).toHaveTextContent('$0.00'); // Annual Borrow Cost
+      expect(results).toHaveTextContent('$425.00'); // Net Annual Benefit
+      expect(results).toHaveTextContent('$10,000.00'); // Effective Capital Invested
+      expect(results).toHaveTextContent('4.25%'); // Total Strategy APR
+    });
+  });
+
+  it('updates LTV when borrow amount changes', async () => {
+    render(<CalculatorForm />);
+    
+    const depositInput = screen.getByLabelText(/Deposit Amount/i);
+    const borrowAmountInput = screen.getByLabelText(/Borrow Amount/i);
+    
+    fireEvent.change(depositInput, { target: { value: '10000' } });
+    fireEvent.change(borrowAmountInput, { target: { value: '5000' } });
+
+    await waitFor(() => {
+      const ltvInput = screen.getByLabelText(/^LTV/i) as HTMLInputElement;
+      expect(parseFloat(ltvInput.value)).toBeCloseTo(50, 2);
     });
   });
 }); 

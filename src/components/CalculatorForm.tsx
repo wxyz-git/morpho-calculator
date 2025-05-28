@@ -37,19 +37,32 @@ export function CalculatorForm() {
   const watchedValues = form.watch();
 
   useEffect(() => {
-    // Calculate dependent fields
     const depositAmount = watchedValues.depositAmount;
     const ltv = watchedValues.ltv;
     const maxLtv = watchedValues.maxLtv;
+    const borrowAmount = watchedValues.borrowAmount;
 
-    // Calculate borrow amount
-    const borrowAmount = (depositAmount * ltv) / 100;
-    form.setValue('borrowAmount', borrowAmount);
+    // If borrow amount was changed, update LTV
+    if (borrowAmount !== (depositAmount * ltv) / 100) {
+      const newLtv = (borrowAmount / depositAmount) * 100;
+      if (newLtv <= maxLtv) {
+        form.setValue('ltv', newLtv);
+      }
+    }
 
     // Calculate health rate
     const healthRate = depositAmount / (borrowAmount / (maxLtv / 100));
     form.setValue('healthRate', healthRate);
-  }, [watchedValues.depositAmount, watchedValues.ltv, watchedValues.maxLtv, form]);
+  }, [watchedValues.depositAmount, watchedValues.borrowAmount, watchedValues.maxLtv, form]);
+
+  // Update borrow amount when LTV changes
+  useEffect(() => {
+    const depositAmount = watchedValues.depositAmount;
+    const ltv = watchedValues.ltv;
+    
+    const newBorrowAmount = (depositAmount * ltv) / 100;
+    form.setValue('borrowAmount', newBorrowAmount);
+  }, [watchedValues.depositAmount, watchedValues.ltv, form]);
 
   const formatCurrency = (value: number) => {
     const formatter = new Intl.NumberFormat('en-US', {
@@ -68,156 +81,165 @@ export function CalculatorForm() {
 
   return (
     <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Morpho APR Calculator</CardTitle>
+      <Card className="bg-gradient-to-br from-[#0E1E3E] to-[#1A2C4E] text-white">
+        <CardHeader className="border-b border-white/10">
+          <CardTitle className="text-2xl font-bold text-center">Morpho APR Calculator</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <Form {...form}>
-            <form className="space-y-4">
-              <FormField
-                control={form.control}
-                name="depositAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Deposit Amount ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold mb-4">Input Parameters</h3>
+                <FormField
+                  control={form.control}
+                  name="depositAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">Deposit Amount ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="intrinsicApr"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Intrinsic APR (%)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="intrinsicApr"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">Intrinsic APR (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="maxLtv"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max LTV (%)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="maxLtv"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">Max LTV (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="ltv"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LTV (%)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="ltv"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">LTV (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="healthRate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Health Rate</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        disabled
-                        className="bg-gray-100"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="borrowAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">Borrow Amount ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="borrowAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Borrow Amount ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        disabled
-                        className="bg-gray-100"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="borrowRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white/90">Borrow Rate (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                          className="bg-white/10 border-white/20 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="borrowRate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Borrow Rate (%)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-4 bg-white/5 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold mb-4">Results</h3>
+                <div className="grid gap-3">
+                  <div>
+                    <div className="text-sm text-white/70">Health Rate</div>
+                    <div className="text-xl font-medium">{watchedValues.healthRate.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Annual Deposit Income</div>
+                    <div className="text-xl font-medium">{formatCurrency(results.annualDepositIncome)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Annual Borrow Cost</div>
+                    <div className="text-xl font-medium">{formatCurrency(results.annualBorrowCost)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Net Annual Benefit</div>
+                    <div className="text-xl font-medium">{formatCurrency(results.netAnnualBenefit)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Effective Capital Invested</div>
+                    <div className="text-xl font-medium">{formatCurrency(results.effectiveCapitalInvested)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Total Strategy APR</div>
+                    <div className="text-xl font-medium">{formatPercentage(results.totalStrategyApr)}</div>
+                  </div>
+                </div>
+              </div>
             </form>
           </Form>
-
-          <div className="mt-8 space-y-2">
-            <h3 className="text-lg font-semibold">Results</h3>
-            <p>Annual Deposit Income: {formatCurrency(results.annualDepositIncome)}</p>
-            <p>Annual Borrow Cost: {formatCurrency(results.annualBorrowCost)}</p>
-            <p>Net Annual Benefit: {formatCurrency(results.netAnnualBenefit)}</p>
-            <p>Effective Capital Invested: {formatCurrency(results.effectiveCapitalInvested)}</p>
-            <p>Total Strategy APR: {formatPercentage(results.totalStrategyApr)}</p>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,37 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Morpho APR Calculator
+
+A web-based calculator for computing APR and related metrics for the Morpho lending protocol. This tool helps users understand and optimize their lending positions by calculating key metrics such as health rate, effective capital invested, and total strategy APR.
+
+## Features
+
+- Real-time calculations as you type
+- Automatic computation of health rate and borrow amount based on LTV
+- Input validation with helpful error messages
+- Responsive design
+- Comprehensive test coverage
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18.0.0 or higher
+- npm 9.0.0 or higher
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/morpho-calculator.git
+cd morpho-calculator
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the calculator.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+The calculator accepts the following inputs:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Deposit Amount ($)**: The amount of money you want to deposit
+- **Intrinsic APR (%)**: The base APR for deposits
+- **Max LTV (%)**: Maximum Loan-to-Value ratio allowed by the protocol
+- **LTV (%)**: Your desired Loan-to-Value ratio
+- **Borrow Rate (%)**: The current borrowing rate
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The calculator will automatically compute:
 
-## Deploy on Vercel
+- **Health Rate**: Position health factor
+- **Borrow Amount ($)**: Amount you can borrow based on LTV
+- **Annual Deposit Income ($)**: Yearly income from your deposit
+- **Annual Borrow Cost ($)**: Yearly cost of borrowing
+- **Net Annual Benefit ($)**: Total yearly profit
+- **Effective Capital Invested ($)**: Net capital in use
+- **Total Strategy APR (%)**: Overall strategy performance
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# morpho-calculator
+### Running Tests
+
+```bash
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Code Quality
+
+The project uses:
+- TypeScript for type safety
+- ESLint for code linting
+- Prettier for code formatting
+- Jest for testing
+- shadcn/ui for components
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Form handling with [React Hook Form](https://react-hook-form.com/)
+- Validation with [Zod](https://zod.dev/)
