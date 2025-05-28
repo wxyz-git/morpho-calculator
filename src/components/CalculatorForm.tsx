@@ -38,7 +38,6 @@ export function CalculatorForm() {
 
   useEffect(() => {
     const depositAmount = watchedValues.depositAmount;
-    const ltv = watchedValues.ltv;
     const maxLtv = watchedValues.maxLtv;
     const borrowAmount = watchedValues.borrowAmount;
 
