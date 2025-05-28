@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { CalculatorInputs, CalculatorResults } from '@/types/calculator';
+import { CalculatorInputs } from '@/types/calculator';
 import { calculateResults } from '@/lib/calculator';
 import { useEffect } from 'react';
 
@@ -47,15 +47,14 @@ export function CalculatorForm() {
     if (!isNaN(healthRate) && isFinite(healthRate)) {
       form.setValue('healthRate', healthRate, { shouldValidate: true });
     }
-  }, [watchedValues.depositAmount, watchedValues.borrowAmount, watchedValues.maxLtv, form]);
+  }, [watchedValues.depositAmount, watchedValues.borrowAmount, watchedValues.maxLtv, watchedValues.ltv, form]);
 
   // Calculate borrow amount from LTV
   useEffect(() => {
     const depositAmount = watchedValues.depositAmount;
-    const ltv = watchedValues.ltv;
     
-    if (depositAmount && ltv) {
-      const newBorrowAmount = (depositAmount * ltv) / 100;
+    if (depositAmount && watchedValues.ltv) {
+      const newBorrowAmount = (depositAmount * watchedValues.ltv) / 100;
       if (!isNaN(newBorrowAmount) && isFinite(newBorrowAmount)) {
         form.setValue('borrowAmount', newBorrowAmount, { shouldValidate: true });
       }

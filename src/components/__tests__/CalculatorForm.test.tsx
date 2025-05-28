@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CalculatorForm } from '../CalculatorForm';
-import userEvent from '@testing-library/user-event';
 
 describe('CalculatorForm', () => {
   it('renders all form fields', () => {
